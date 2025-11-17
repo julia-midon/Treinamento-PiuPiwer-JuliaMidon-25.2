@@ -1,8 +1,8 @@
 import LandingPagesNav from "@/components/base/nav/InitialNav";
-import Embarcar from "./_components/Embarcar";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
 import CarouselExample from "./_components/CarouselExample";
+import Link from "next/link";
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -11,21 +11,28 @@ export default async function Home() {
   
   const isLogged = !!session?.user;
 
-  return (
-    <div className="min-h-screen">
-      <LandingPagesNav isLogged={isLogged} />
-      
-      <main className="h-[70vh] w-full pt-20 pb-16 flex flex-col items-center justify-center text-center">
-        <h1 className="font-bold text-5xl text-pink-800">Página de Exemplo</h1>
-        <p className="pt-4 text-xl">Comece a editar seu site em <em className="text-pink-400">/app/(frontend)/(landing-pages)/page.tsx</em></p>
-      </main>
-
-      <div className="w-full flex items-center justify-center">
-        <Embarcar isLogged={isLogged} />
+return (
+  <div className="min-h-screen bg-blue-100">
+    
+    <main className="min-h-[70vh] w-full py-16 flex flex-col items-center justify-center gap-8 text-center">
+      <h1 className="font-bold text-5xl text-blue-600">Piupiwer</h1>
+      <p className="text-lg text-blue-700 max-w-2xl">
+        Conectando a comunidade Poli!
+      </p>
+            <div className="flex gap-4 mt-4">
+        <Link href="/login">
+          <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            Entrar
+          </button>
+        </Link>
+        <Link href="/login">
+          <button className="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+            Cadastrar
+          </button>
+        </Link>
       </div>
-
-      <p className="text-center pt-8">um carousel de exemplo :)</p>
-      <CarouselExample />
-    </div>
-  );
+    </main>
+    
+  </div>
+);
 }

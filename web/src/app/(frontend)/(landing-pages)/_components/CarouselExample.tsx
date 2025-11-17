@@ -27,7 +27,7 @@ const items = [
 
 export default function CarouselExample() {
   return (
-    <div className="w-full max-w-4xl mx-auto mt-6 py-10 px-4 bg-pink-100">
+    <div className="w-full max-w-4xl mx-auto mt-6 py-10 px-4 bg-blue-200">
       <Carousel className="relative">
         <CarouselContent className="-ml-4">
           {items.map((item, index) => (
