@@ -1,4 +1,3 @@
-// components/ui/sidebar.tsx
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -15,7 +14,7 @@ export default function Sidebar() {
   ]
 
   const handleLogout = () => {
-    // Simulação de logout - depois integra com BetterAuth
+    // Simulação de logout - depois vou integrar com BetterAuth
     console.log("Saindo...")
     router.push('/') // Redireciona para landing page
   }

@@ -14,7 +14,7 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      // Simulação de login - FUNCIONA SEM BETTERAUTH
+      // Simulação de login - testando sem BetterAuth para conseguir configurar o front
       console.log("Logando:", { email, password });
       
       // Simula uma requisição

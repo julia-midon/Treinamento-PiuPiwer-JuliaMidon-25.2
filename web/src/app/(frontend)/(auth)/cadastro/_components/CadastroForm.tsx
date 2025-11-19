@@ -15,7 +15,7 @@ export default function CadastroForm() {
     setLoading(true);
 
     try {
-      // Simulação de cadastro - FUNCIONA SEM BETTERAUTH
+      // Simulação de cadastro - tb funciona sem BetterAuth
       console.log("Cadastrando:", { name, email, password });
       
       // Simula uma requisição

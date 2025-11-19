@@ -1,8 +1,7 @@
-// (user-protected)/perfil/page.tsx
 import Sidebar from "@/components/ui/sidebar"
 
 export default function PerfilPage() {
-  // Dados mockados - depois vêm do backend
+  // Dados mockados - depois virão do backend
   const usuario = {
     nome: "Julia Midon",
     username: "@juliamidon",
@@ -13,9 +12,9 @@ export default function PerfilPage() {
   }
 
   const postsUsuario = [
-    { id: 1, texto: "Acabei de implementar o PiuPiwer! Que projeto incrível! 🎉", horario: "2h atrás", likes: 15 },
-    { id: 2, texto: "Alguém mais animado para o próximo evento da Poli? 👀", horario: "1 dia atrás", likes: 8 },
-    { id: 3, texto: "Finalmente entendi React Hooks! 💪", horario: "3 dias atrás", likes: 12 },
+    { id: 1, texto: "Resenha demais esse PiuPiwer", horario: "2h atrás", likes: 15 },
+    { id: 2, texto: "Amassei no testinho de SD hj", horario: "1 dia atrás", likes: 8 },
+    { id: 3, texto: "To doida pra ir pra Vitória logo", horario: "3 dias atrás", likes: 12 },
   ]
 
   return (
@@ -23,16 +22,14 @@ export default function PerfilPage() {
       <Sidebar />
       
       <main className="flex-1 p-6">
-        {/* Header do Perfil */}
+        {/*Perfil*/}
         <section className="mb-6">
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <div className="flex items-start gap-6">
-              {/* Avatar */}
               <div className="w-24 h-24 bg-linear-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                 JM
               </div>
               
-              {/* Informações */}
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900">{usuario.nome}</h1>
                 <p className="text-gray-600">{usuario.username}</p>

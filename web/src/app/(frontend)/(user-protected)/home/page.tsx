@@ -1,4 +1,3 @@
-// (user-protected)/home/page.tsx
 import Sidebar from "@/components/ui/sidebar"
 
 export default function HomePage() {
@@ -33,6 +32,27 @@ export default function HomePage() {
     },
   ]
 
+  const newsData = [
+    {
+      id: 1,
+      title: "Já se inscreveu no Workshop Integrativo?",
+      description: "Simplesmente a maior feira de recrutamento do Brasil!",
+      styleClass: "from-blue-500 to-purple-600"
+    },
+    {
+      id: 2,
+      title: "O BF é finalista do NDU!",
+      description: "A Poli enfrentará a Med PUC no próximo fim de semana",
+      styleClass: "from-green-500 to-blue-500"
+    },
+    {
+      id: 3,
+      title: "Inscrições Abertas para IC",
+      description: "Procurando Iniciação Científica? Vagas abertas no lab de IA.",
+      styleClass: "from-yellow-500 to-orange-600"
+    }
+  ];
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -43,10 +63,10 @@ export default function HomePage() {
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <h3 className="text-lg font-semibold mb-4">📰 Notícias da Poli</h3>
             <div className="flex gap-4 overflow-x-auto pb-4">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="shrink-0 w-64 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white">
-                  <h4 className="font-semibold">Evento de Tecnologia {item}</h4>
-                  <p className="text-sm opacity-90 mt-2">Participe do maior evento de tech da universidade!</p>
+              {newsData.map((item) => (
+                <div key={item.id} className={`shrink-0 w-64 bg-linear-to-br ${item.styleClass} rounded-lg p-4 text-white`}>
+                  <h4 className="font-semibold">{item.title}</h4>
+                  <p className="text-sm opacity-90 mt-2">{item.description}</p>
                 </div>
               ))}
             </div>
