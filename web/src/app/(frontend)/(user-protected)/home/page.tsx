@@ -1,150 +1,110 @@
-import Sidebar from "@/components/ui/sidebar"
+import HomeCaroussel from "./HomeCaroussel";// (Verifique o caminho/nome deste arquivo)
+import { CreatePost } from "@/components/ui/CreatePost";
+import { PostCard } from "@/components/ui/PostCard";
+import { cookies } from "next/headers"; // Para passar a autenticação
 
-export default function HomePage() {
-  // Dados mockados - depois vêm do backend
-  const posts = [
-    { 
-      id: 1, 
-      usuario: "Toni", 
-      username: "@tonisilva", 
-      texto: "Acabei de ver o loki no passeio", 
-      horario: "5 min atrás", 
-      likes: 8,
-      comentarios: 2 
-    },
-    { 
-      id: 2, 
-      usuario: "Loki", 
-      username: "@lokilindo", 
-      texto: "Acabei de ver o toni no passeio", 
-      horario: "1h atrás", 
-      likes: 15,
-      comentarios: 5 
-    },
-    { 
-      id: 3, 
-      usuario: "Turminha top", 
-      username: "@turminhatop", 
-      texto: "Fizemos 90/90 no ENEM, somos muito inteligentes!", 
-      horario: "3h atrás", 
-      likes: 23,
-      comentarios: 7 
-    },
-  ]
+// 1. TIPO ATUALIZADO (para corresponder ao seu 'services/posts.ts')
+type ApiPost = {
+  id: string;
+  text: string;
+  createdAt: string; // O Prisma devolve como string de data
+  author: {
+    id: string;
+    name: string;
+    username: string | null;
+    image: string | null;
+  };
+  _count: { // O seu backend envia _count
+    likes: number;
+    comments: number;
+  }
+}
 
-  const newsData = [
-    {
-      id: 1,
-      title: "Já se inscreveu no Workshop Integrativo?",
-      description: "Simplesmente a maior feira de recrutamento do Brasil!",
-      styleClass: "from-blue-500 to-purple-600"
-    },
-    {
-      id: 2,
-      title: "O BF é finalista do NDU!",
-      description: "A Poli enfrentará a Med PUC no próximo fim de semana",
-      styleClass: "from-green-500 to-blue-500"
-    },
-    {
-      id: 3,
-      title: "Inscrições Abertas para IC",
-      description: "Procurando Iniciação Científica? Vagas abertas no lab de IA.",
-      styleClass: "from-yellow-500 to-orange-600"
+// (Função formatTimeAgo)
+function formatTimeAgo(dateString: string | Date) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.round((now.getTime() - date.getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.round(hours / 24);
+  return `${days}d`;
+}
+
+// 2. FUNÇÃO getPosts CORRIGIDA
+async function getPosts() {
+  try {
+    const host = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+    
+    // 3. CORREÇÃO do 'await' (o erro de Promise que vimos)
+    const cookieStore = await cookies(); 
+    const sessionCookie = cookieStore.get('better-auth.session-token'); 
+    
+    const fetchHeaders = new Headers();
+    if (sessionCookie) {
+      fetchHeaders.append('Cookie', `${sessionCookie.name}=${sessionCookie.value}`);
     }
-  ];
+
+    const res = await fetch(`${host}/api/posts`, {
+      method: 'GET',
+      headers: fetchHeaders, 
+      cache: 'no-store', // Essencial para o feed atualizar
+    });
+
+    if (!res.ok) {
+      throw new Error('Falha ao buscar posts');
+    }
+
+    const data = await res.json();
+    
+    // 4. CORREÇÃO da resposta (o seu backend devolve data.posts)
+    return data.posts as ApiPost[]; 
+  
+  } catch (error) {
+    console.error("Erro detalhado ao buscar posts:", error);
+    return []; 
+  }
+}
+
+// --- A PÁGINA ---
+export default async function FeedPage() {
+  const posts = await getPosts();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+    <div className="max-w-[700px] mx-auto pb-10">
       
-      <main className="flex-1 p-6 max-w-2xl mx-auto w-full">
-        {/* Carrossel de Notícias */}
-        <section className="mb-6">
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">📰 Notícias da Poli</h3>
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {newsData.map((item) => (
-                <div key={item.id} className={`shrink-0 w-64 bg-linear-to-br ${item.styleClass} rounded-lg p-4 text-white`}>
-                  <h4 className="font-semibold">{item.title}</h4>
-                  <p className="text-sm opacity-90 mt-2">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Destaques</h2>
+        <HomeCaroussel /> 
+      </div>
 
-        {/* Input para Publicações */}
-        <section className="mb-6">
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                JM
-              </div>
-              <textarea 
-                placeholder="O que você está pensando?"
-                className="flex-1 p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-              />
-            </div>
-            <div className="flex justify-between items-center">
-              <div className="flex gap-3">
-                <button className="p-2 text-gray-500 hover:text-blue-500 transition-colors">
-                  📷
-                </button>
-                <button className="p-2 text-gray-500 hover:text-green-500 transition-colors">
-                  🎵
-                </button>
-                <button className="p-2 text-gray-500 hover:text-red-500 transition-colors">
-                  ❤️
-                </button>
-              </div>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                Publicar
-              </button>
-            </div>
-          </div>
-        </section>
+      <CreatePost />
 
-        {/* Feed de Posts */}
-        <section>
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">📝 Feed</h3>
-            
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <div key={post.id} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  {/* Header do Post */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-linear-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                      {post.usuario[0]}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">{post.usuario}</div>
-                      <div className="text-sm text-gray-500">{post.username} · {post.horario}</div>
-                    </div>
-                  </div>
-                  
-                  {/* Conteúdo do Post */}
-                  <p className="text-gray-800 mb-3">{post.texto}</p>
-                  
-                  {/* Interações */}
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <button className="flex items-center gap-1 hover:text-red-500 transition-colors">
-                      ♥️ {post.likes}
-                    </button>
-                    <button className="flex items-center gap-1 hover:text-blue-500 transition-colors">
-                      💬 {post.comentarios}
-                    </button>
-                    <button className="flex items-center gap-1 hover:text-green-500 transition-colors">
-                      🔄
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <h2 className="text-xl font-bold text-slate-800 mb-4 mt-8">Seu Feed</h2>
+      <div className="flex flex-col gap-2">
+        {posts && posts.length > 0 ? (
+          posts.map((post) => (
+            <PostCard 
+              key={post.id}
+              author={post.author.name}
+              handle={post.author.username ?? ''} // Agora o 'username' existe!
+              time={formatTimeAgo(post.createdAt)}
+              content={post.text}
+              // 5. CORREÇÃO da contagem (usando _count)
+              likes={post._count.likes} 
+              comments={post._count.comments} 
+              avatarUrl={post.author.image} 
+            />
+          ))
+        ) : (
+          <div className="text-center text-slate-500 py-10">
+            <p>Seu feed está vazio. Faça seu primeiro post!</p>
           </div>
-        </section>
-      </main>
+        )}
+      </div>
     </div>
-  )
+  );
 }

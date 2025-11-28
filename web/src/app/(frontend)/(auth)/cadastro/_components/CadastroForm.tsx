@@ -1,91 +1,173 @@
 'use client'
-import { useState } from "react";
-import { toast } from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; 
 
-export default function CadastroForm() {
-  const [loading, setLoading] = useState(false);
+import PasswordRequirement from "./PasswordRequirement";
+import RequiredTag from "@/components/base/input/RequiredTag";
+import { hasLowercase, hasMinLength, hasNumber, hasUppercase, validatePassword, validateConfirmPassword } from "@/utils";
+
+import { toast } from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
+
+import dynamic from 'next/dynamic';
+
+const CredentialsButton = dynamic(() => import('@/components/auth/CredentialsButton'));
+const ValidatedInput = dynamic(() => import('@/components/base/input/ValidatedInput'));
+
+function CadastroForm() {
+  const router = useRouter(); 
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Simulação de cadastro - tb funciona sem BetterAuth
-      console.log("Cadastrando:", { name, email, password });
+      if (password !== confirmPassword) {
+        toast.error("As senhas não coincidem");
+        setLoading(false); 
+        return;
+      }
+
+      if (!validatePassword(password)) {
+        toast.error("A senha não atende aos requisitos mínimos");
+        setLoading(false); 
+        return;
+      }
+
+      const result = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        callbackURL: "/home", 
+      });
+
+      if (result.error) {
+        if (result.error.message?.includes('already exists') || result.error.message?.includes('duplicate')) {
+          toast.error("Este email ou nome de usuário já está cadastrado");
+        } else {
+          toast.error(result.error.message || "Erro inesperado");
+        }
+        setLoading(false); 
+      } else {
+        toast.success(`Bem-vindo(a), ${name}!`);
+        router.push('/home'); 
+        router.refresh();
+      }
+    } catch (error: unknown) {
+      console.error('Signup error:', error);
       
-      // Simula uma requisição
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast.success(`Conta criada para ${name}! Redirecionando...`);
-      
-      // Redireciona para a home
-      setTimeout(() => {
-        router.push('/home');
-      }, 2000);
-      
-    } catch (error) {
-      toast.error("Erro ao criar conta");
-    } finally {
+      if (error instanceof Error) {
+        toast.error(error.message ?? "Erro inesperado");
+      } else {
+        toast.error("Erro inesperado");
+      }
+
       setLoading(false);
-    }
+    } 
   };
 
-  return (
-    <div className="flex items-center justify-center">
-      <div className="pt-6 mb-12 px-2">
-        <form onSubmit={handleSubmit}>
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  return ( 
+    <div className="flex items-center justify-center bg-blue-500">
+      <div className="p-10 m-10 border border-slate-200 rounded-2xl bg-white">
+        <h2 className="font-bold text-[40px] text-center leading-12 p-2">Conectando a comunidade Poli!</h2>
+
+        <form className="" onSubmit={handleCredentialsSubmit}>
           <div className="flex flex-col gap-4">
-            <div>
-              <label className="auth-label">Nome completo</label>
-              <input
-                type="text"
-                placeholder="Seu nome"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="auth-input w-full"
-                required
-              />
-            </div>
             
-            <div>
-              <label className="auth-label">E-mail</label>
-              <input
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="auth-input w-full"
-                required
-              />
-            </div>
+            <ValidatedInput
+              title="Nome"
+              placeholder="Insira seu nome completo"
+              name="name"
+              type="text"
+              value={name}
+              setValue={setName}
+              labelClassName='auth-label'
+              inputClassName='auth-input'
+              iconContainerClassName="auth-icon"
+              required
+            ><RequiredTag/></ValidatedInput>
+
+            <ValidatedInput
+              title="E-mail"
+              placeholder="exemplo@piupiwer.com.br"
+              name="email"
+              type="email"
+              value={email}
+              setValue={setEmail}
+              labelClassName='auth-label'
+              inputClassName='auth-input'
+              iconContainerClassName="auth-icon"
+              required
+            ><RequiredTag/></ValidatedInput>
             
-            <div>
-              <label className="auth-label">Senha</label>
-              <input
-                type="password"
-                placeholder="*********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="auth-input w-full"
-                required
+            <ValidatedInput
+              title="Senha"
+              placeholder="Insira sua senha"
+              name="password"
+              type="password"
+              value={password}
+              setValue={setPassword}
+              overrideValidate={validatePassword}
+              labelClassName="auth-label"
+              inputClassName="auth-input"
+              iconContainerClassName="auth-icon"
+              required
+            ><RequiredTag/></ValidatedInput>
+
+            <ValidatedInput
+              title="Confirmar Senha"
+              placeholder="Confirme sua senha"
+              name="confirmPassword"
+              type="password"
+              dependencies={[password]}
+              value={confirmPassword}
+              setValue={setConfirmPassword}
+              overrideValidate={(val) => validateConfirmPassword(val, password)}
+              labelClassName="auth-label"
+              inputClassName="auth-input"
+              iconContainerClassName="auth-icon"
+              required
+            ><RequiredTag/></ValidatedInput>
+            
+            <p>
+              Senha deve ter pelo menos:
+              <PasswordRequirement 
+                text="1 letra maiúscula"
+                validateFunction={() => hasUppercase(password)}
               />
-            </div>
+              <PasswordRequirement 
+                text="1 letra minúscula"
+                validateFunction={() => hasLowercase(password)}
+              />
+              <PasswordRequirement 
+                text="1 número"
+                validateFunction={() => hasNumber(password)}
+              />
+              <PasswordRequirement 
+                text="8 caracteres"
+                validateFunction={() => hasMinLength(password)}
+              />
+            </p>
           </div>
-          
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? "Criando conta..." : "Criar conta"}
-          </button>
+          <CredentialsButton disabled={loading} className="mt-6">
+            {loading ? "Criando conta..." : "Cadastrar"}
+          </CredentialsButton>
         </form>
+        
+        <Link href='/login' className="block w-fit mt-8 text-sm group">Já tem uma conta? <span className="text-blue-500 colorTransition border-b border-transparent group-hover:border-blue-500">Login</span></Link>
       </div>
     </div>
-  );
+   );
 }
+
+export default CadastroForm;

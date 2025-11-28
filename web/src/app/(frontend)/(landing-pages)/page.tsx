@@ -2,7 +2,7 @@ import LandingPagesNav from "@/components/base/nav/InitialNav";
 import { headers } from "next/headers";
 import { auth } from "@/auth";
 import CarouselExample from "./_components/CarouselExample";
-import Link from "next/link";
+import PiuPiwer from '@/components/svgs/piupiwer.png'
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -11,28 +11,22 @@ export default async function Home() {
   
   const isLogged = !!session?.user;
 
-return (
-  <div className="min-h-screen bg-blue-100">
-    
-    <main className="min-h-[70vh] w-full py-16 flex flex-col items-center justify-center gap-8 text-center">
-      <h1 className="font-bold text-5xl text-blue-600">Piupiwer</h1>
-      <p className="text-lg text-blue-700 max-w-2xl">
-        Conectando a comunidade Poli!
-      </p>
-            <div className="flex gap-4 mt-4">
-        <Link href="/login">
-          <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-            Entrar
-          </button>
-        </Link>
-        <Link href="/login">
-          <button className="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors">
-            Cadastrar
-          </button>
-        </Link>
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <LandingPagesNav isLogged={isLogged} />
+      
+      <main className="w-full pt-32 pb-20 flex flex-col items-center justify-center text-center px-4 bg-blue-50">
+        <img src={PiuPiwer.src} alt="PiuPiwer Logo" className="w-32 h-32 mb-6" />
+        <h1 className="font-extrabold text-6xl md:text-7xl text-blue-600 tracking-tight">
+          PiuPiwer
+        </h1>
+        <p className="pt-6 text-xl md:text-2xl text-slate-600 max-w-2xl">
+         Conectando a comunidade Poli!
+        </p>
+      </main>
+
+      <div className="py-16 w-full flex flex-col items-center justify-center bg-blue-50 border-t border-slate-100">
       </div>
-    </main>
-    
-  </div>
-);
+    </div>
+  );
 }
