@@ -1,19 +1,10 @@
-import { Stack, Link } from 'expo-router';
+import { Redirect } from 'expo-router';
 
-import { Button } from '~/components/Button';
-import { Container } from '~/components/Container';
-import { ScreenContent } from '~/components/ScreenContent';
-
-export default function Home() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Home' }} />
-      <Container>
-        <ScreenContent path="app/index.tsx" title="Home"></ScreenContent>
-        <Link href={{ pathname: '/details', params: { name: 'Dan' } }} asChild>
-          <Button title="Show Details" />
-        </Link>
-      </Container>
-    </>
-  );
+export default function Index() {
+  // Como ainda não temos a lógica de persistência de sessão pronta,
+  // vamos forçar o redirecionamento direto para a tela de login por enquanto.
+  
+  // No Expo Router, grupos com parenteses como (auth) não precisam ir na URL,
+  // mas como queremos ser específicos, vamos apontar para o arquivo login.
+  return <Redirect href="/login" />;
 }
